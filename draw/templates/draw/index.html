@@ -23,12 +23,18 @@
     var canvas = document.getElementById('myCanvas');
     paper.setup(canvas);
     var tool = new paper.Tool();
-
+    
+    // Creating a user's unique color.
+    function rainbow() {  // From stack exchange: https://stackoverflow.com/questions/1152024/best-way-to-generate-a-random-color-in-javascript
+      // 30 random hues with step of 12 degrees
+      var hue = Math.floor(Math.random() * 30) * 12;
+      return {"hue": hue, "saturation": .9, "brightness": .6};
+    };
+    var userColor = rainbow();
+    console.log("userColor hue: " + userColor.hue);
+  
     // getting the URL (you may want to use for Exercise 3)
     var url = window.location.href;
-
-    //last dot made
-    var dot = {};
   
     /* WebSockets */
     // create a new websocket connecting to the server
@@ -36,11 +42,13 @@
   
     // triggered when receiving a message from the server
     socket.onmessage = function(receivedMessage) {
-      // do something when you receive a message: Draw the new dot.
-      var messageObj = JSON.parse(receivedMessage.data);
+      // do something when you receive a message: Draw the new circle.
+      var messageObj = JSON.parse(receivedMessage.data); // the receivedMessage is an event; extract its data.
       console.log("messageObj: " + messageObj);
-      var circle = new paper.Path.Circle(new paper.Point(messageObj[1], messageObj[2]), 2);
-	    circle.fillColor = 'black';
+      console.log("messageObj[0]: " + messageObj[0]); //type of object
+      console.log("messageObj[1]: " + messageObj[1]); //object itself
+      console.log("messageObj[1].fillColor: " + messageObj[1].fillColor);
+      var circle = new paper.Path.Circle(messageObj[1]);
     };
 
     // notify console if socket closes unexpectedly
@@ -52,17 +60,12 @@
     tool.maxDistance = 2;
     tool.onMouseDrag = function(event) {
       var circle = new paper.Path.Circle(event.middlePoint, 2);
-	    circle.fillColor = 'black';
-      //console.log("position: " + circle.position);
-      dot = {
-        "position":circle.position,
-        "color":"black"
-      }
+	    circle.fillColor = new paper.Color(userColor);
       
       // use when sending a message to the server to be broadcasted to all clients.
-      // Sent the latest dot.
-      //console.log("JSON string: " + JSON.stringify(dot));
-      socket.send(JSON.stringify(event.middlePoint));
+      // Sent the latest circle.
+      console.log("JSON string of circle: " + JSON.stringify(circle));
+      socket.send(JSON.stringify(circle));
     }
     
 </script>
