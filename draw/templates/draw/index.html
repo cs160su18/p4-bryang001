@@ -16,7 +16,7 @@
 </head>
 <body>
     <!-- You may change the dimensions of this canvas -->
-    <canvas id="myCanvas" width="750px" height="750px"></canvas>
+    <canvas id="myCanvas" width="750px" height="750px" style="border: 2px solid red"></canvas>
 </body>
 <script>
 
@@ -28,9 +28,20 @@
     // getting the URL (you may want to use for Exercise 3)
     var url = window.location.href;
 
-    // var socket = new WebSocket(
-    //     'ws://your url here:8765/');
+    //var socket = new WebSocket(
+    //    'ws://http://p4-bryang001-bryang001606770.codeanyapp.com:8765/');
 
-
+    //array to keep track of all the dots on screen
+    var dots = new Array();
+    
+    //code for drawing capability
+    tool.maxDistance = 2;
+    tool.onMouseDrag = function(event) {
+        var circle = new paper.Path.Circle(event.middlePoint, 2);
+	    circle.fillColor = 'black';
+        console.log("position: " + circle.position);
+        dots.push(circle.position.toString());
+    }
+    
 </script>
 </html>
