@@ -26,8 +26,8 @@
     
     // Creating a user's unique color.
     function rainbow() {  // From stack exchange: https://stackoverflow.com/questions/1152024/best-way-to-generate-a-random-color-in-javascript
-      // 30 random hues with step of 12 degrees
-      var hue = Math.floor(Math.random() * 30) * 12;
+      // 60 random hues with step of 6 degrees
+      var hue = Math.floor(Math.random() * 30) * 6;
       return {"hue": hue, "saturation": .9, "brightness": .6};
     };
     var userColor = rainbow();
@@ -83,6 +83,64 @@
         socket.send(JSON.stringify(circle)); 
       }
     }
+    
+    /* Mobile Device Orientation Functions */
+    var alphaList = [];
+    var smoothingWindow = 10;
+    window.ondeviceorientation = function(event) {
+      //tilt to right to randomly change pen color
+      if (event.gamma > 75) {
+        userColor = rainbow();
+      }
+      
+      // Shake: record new orientation, then see if the difference between the first and last alpha in...
+      // ... the alphaList exceeds a threshold.
+      alphaList.push(event.alpha);
+      var firstAlpha = alphaList[0];
+      var lastAlpha = alphaList[alphaList.length-1];
+      var alphaDiff = Math.abs(firstAlpha - lastAlpha)
+      if (alphaDiff > 100) {
+        //console.log("firstAlpha - lastAlpha = " + alphaDiff);
+        paper.project.clear();
+      }
+      
+      // Remove the oldest item in alphaList.
+      if (alphaList.length > smoothingWindow) {
+        alphaList.shift();
+      }
+    }
+    
+    // Shake Handler: Above a certain level of motiion, clear the canvas.
+//     var points = []
+    
+//     window.ondevicemotion = function(event) {
+//       console.log("event: " + event);
+//       console.log("event.acceleration: " + event.acceleration);
+      
+      
+//       if(!isNaN(event.acceleration.x)) {
+//         console.log("event.acceleration.x: " + event.acceleration.x);
+//       }
+
+//       console.log("event.rotationRate: " + event.rotationRate);
+//       console.log("event.rotationRate.gamma: " + event.rotationRate.gamma);
+      
+//       var x = event.acceleration.x;
+//       var y = event.acceleration.y;
+//       var z = event.acceleration.z;
+
+//       points.push([x,y,z]);
+//       console.log("points: " + points);
+//       // Do something awesome.
+//       console.log("meanOfPoints: " + meanOfPoints(points));
+//       if (meanOfPoints(points) > 0) {
+//         console.log("x accel: " + x);
+//         var testCircle = new paper.Path.Circle(paper.view.center, 1);
+//         testCircle.fillColor = new paper.Color(rainbow());
+//       }
+//       //project.clear();
+//     }
+
     
 </script>
 </html>
