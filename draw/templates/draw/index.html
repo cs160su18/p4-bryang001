@@ -17,6 +17,9 @@
 <body>
     <!-- You may change the dimensions of this canvas -->
     <canvas id="myCanvas" width="750px" height="750px" style="border: 2px solid red"></canvas>
+    <h3>
+      
+    </h3>
 </body>
 <script>
     // setting up the canvas and one paper tool
@@ -35,6 +38,22 @@
   
     // getting the URL (you may want to use for Exercise 3)
     var url = window.location.href;
+    //console.log(url);
+    // Read a page's GET URL variables and return them as an associative array.
+    // From stackoverflow: https://stackoverflow.com/questions/4656843/jquery-get-querystring-from-url
+    function getUrlVars() {
+        var vars = [], hash;
+        var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+        for(var i = 0; i < hashes.length; i++)
+        {
+            hash = hashes[i].split('=');
+            vars.push(hash[0]);
+            vars[hash[0]] = hash[1];
+        }
+        return vars;
+    };
+    var size = getUrlVars().size;
+    console.log("device size, from url: " + size);
   
     /* WebSockets */
     // create a new websocket connecting to the server
@@ -44,11 +63,9 @@
     socket.onmessage = function(receivedMessage) {
       // do something when you receive a message: Draw the new circle.
       var messageObj = JSON.parse(receivedMessage.data); // the receivedMessage is an event; extract its data.
-      console.log("messageObj: " + messageObj);
-      console.log("messageObj[0]: " + messageObj[0]); //type of object
-      console.log("messageObj[1]: " + messageObj[1]); //object itself
-      console.log("messageObj[1].fillColor: " + messageObj[1].fillColor);
-      var circle = new paper.Path.Circle(messageObj[1]);
+      if (size == "large"){
+        var circle = new paper.Path.Circle(messageObj[1]);
+      }
     };
 
     // notify console if socket closes unexpectedly
@@ -59,13 +76,15 @@
     //code for drawing capability
     tool.maxDistance = 2;
     tool.onMouseDrag = function(event) {
-      var circle = new paper.Path.Circle(event.middlePoint, 2);
-	    circle.fillColor = new paper.Color(userColor);
-      
-      // use when sending a message to the server to be broadcasted to all clients.
-      // Sent the latest circle.
-      console.log("JSON string of circle: " + JSON.stringify(circle));
-      socket.send(JSON.stringify(circle));
+      // Is this a small device? If so, we'll need to send the new circle to the large device.
+      if (size == "small") {
+        var circle = new paper.Path.Circle(event.middlePoint, 2);
+	      circle.fillColor = new paper.Color(userColor);
+        // use when sending a message to the server to be broadcasted to all clients.
+        // Sent the latest circle.
+        //console.log("JSON string of circle: " + JSON.stringify(circle));
+        socket.send(JSON.stringify(circle)); 
+      }
     }
     
 </script>
